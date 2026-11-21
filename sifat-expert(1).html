@@ -1,0 +1,191 @@
+<!doctype html><html lang="bn"><head><meta charset=utf-8><meta name=viewport content="width=device-width, initial-scale=1"><meta name="theme-color" content="#103d3b"><title>সিফাত এক্সপার্ট</title><script async src="https://www.googletagmanager.com/gtag/js?id=G-59D3LYTP12"></script><script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-59D3LYTP12');function trackGameEvent(name,params={}){if(typeof gtag==='function')gtag('event',name,params)}</script><style>
+*{box-sizing:border-box}body{margin:0;background:#f3efe3;color:#143e39;font-family:"Noto Sans Bengali",system-ui,sans-serif}main{width:min(100%,760px);margin:auto;padding:clamp(8px,2vw,18px)}header,.status,.floor{display:flex;justify-content:space-between;align-items:center;gap:8px}header{padding:0 3px 8px}header small{color:#746349}h1{font-size:clamp(24px,5vw,40px);margin:0;font-family:Georgia,"Noto Serif Bengali",serif}.status{font-size:14px;padding:8px 3px}.sky{position:relative;isolation:isolate;overflow:hidden;border-radius:22px;background:radial-gradient(ellipse at 50% 108%,#38817b,transparent 65%),linear-gradient(160deg,#102e3e,#16504c);color:#fff7dd;height:clamp(280px,72dvh,690px);box-shadow:0 10px 30px #193d3424}.sky:before{content:"";position:absolute;inset:0;background-image:radial-gradient(circle,#f3d79d50 1px,transparent 1.5px);background-size:41px 43px;pointer-events:none}.lanes{position:absolute;inset:0 0 73px;background:linear-gradient(90deg,transparent 33%,#ffffff16 33.2%,transparent 33.5%,transparent 66.4%,#ffffff16 66.6%,transparent 66.8%)}.floor{position:absolute;bottom:0;width:100%;height:73px;border-top:1px solid #d2d5a6;background:#103d3be8;justify-content:center}.dock{font:44px/1 serif;color:#ffe3a9}.tray{position:absolute;bottom:11px;font-size:24px;opacity:.85}.left{left:12px}.right{right:12px}button{font:inherit;color:#16433d;border:1px solid #71988b;border-radius:12px;background:#fff9e9;padding:8px 15px;cursor:pointer}button:focus-visible{outline:3px solid #f5ac38}.card{position:absolute;top:0;left:0;width:30%;padding:8px 2px;font-size:clamp(15px,3.8vw,21px);font-weight:600;border:2px solid #a3c8ac;border-radius:14px;background:linear-gradient(#fff9e9,#daecdb);box-shadow:0 5px 10px #06282b55;touch-action:none;user-select:none;cursor:grab;z-index:2}.veil{position:absolute;inset:0;display:grid;place-items:center;background:#072c3094;z-index:5;padding:14px}.box{background:#fff9ea;color:#194c42;text-align:center;border-radius:20px;padding:20px;max-width:380px;border:1px solid #d1b777;box-shadow:0 8px 35px #072d3455}.box p{line-height:1.65;margin:10px 0}.box h2{margin:0}.box button{background:#17584b;color:white}.intro{position:absolute;left:50%;top:0;font:90px/1 serif;color:#ffe5af;z-index:3;pointer-events:none}.toast{position:absolute;left:50%;top:5px;transform:translateX(-50%);color:#fff2c9;font-size:13px;z-index:3;pointer-events:none}.hint{font-size:13px;color:#4b665c}[hidden]{display:none!important}
+.box{max-height:96%;overflow:auto}.box button{margin:4px}.box #extras button{background:#fff8e8;color:#185248}#bloom:not(:empty){position:relative;width:220px;height:160px;margin:auto;display:grid;place-items:center}#bloom b{font:52px serif}#bloom span{position:absolute;transform:translate(-50%,-50%);background:#f3dfce;border:1px solid #d3ab91;border-radius:55% 35%;padding:4px 7px;font-size:14px}.toast{background:#103d3b;border-radius:9px;width:max-content;max-width:95%;text-align:center}#scorecard{margin:14px auto;padding:14px 24px;border:1px solid #c7aa66;border-radius:17px;background:radial-gradient(ellipse at top,#28645a,#113e39);color:#fff3cd}#scorecard strong{display:block;font-size:44px;color:#ffe3a0}#scorecard small{color:#fff1d2}.box #extras .shareScore{display:block;margin:12px auto 0;background:#753a61;border-color:#753a61;color:white;font-weight:600;padding:10px 14px}</style></head><body><main><header><div><small>খেলতে খেলতে শিখি</small><h1>সিফাত এক্সপার্ট</h1></div><button id="pauseBtn" hidden>Pause</button></header><nav hidden id="navigation"><button id="back">পিছনে</button> <button id="home">শুরুতে</button></nav><div class=status><span id="round">হরফ ১</span><span id="points">পয়েন্ট ০</span></div><div class=sky id="sky"><div class=lanes id="field"></div><div class=floor><span class="tray left">🧺</span><b id="dock" class=dock lang=ar></b><span id="letterName"></span><span class="tray right">🧺</span></div><div class=toast id="toast" role=status></div><div class=veil id="veil"><div class=box><h2 id="heading"></h2><div id="scorecard" hidden><span>আপনার সিফাত স্কোর</span><strong id="finalPoints"></strong><small>পয়েন্ট</small></div><p id="info"></p><div id="bloom"></div><button id="action"></button><div id="extras"></div></div></div></div><p class=hint>ভুল সিফাত ডানে বা বামে ছুড়ে দিন। কিবোর্ডে কার্ড বেছে Enter চাপুন।</p></main><script>
+const L="ا ب ت ث ج ح خ د ذ ر ز س ش ص ض ط ظ ع غ ف ق ك ل م ن و ه ء ي".split(" ");
+const N="আলিফ|বা|তা|ছা|জীম|হা|খ|দাল|যাল|র|যা|সীন|শীন|ছোয়াদ|দোয়াদ|ত্ব|য্ব|আইন|গইন|ফা|ক্বফ|কাফ|লাম|মীম|নূন|ওয়াও|হা|হামযাহ্|ইয়া".split("|");
+const S=s=>s.split(" "),not=a=>L.filter(x=>!a.includes(x)),not28=a=>L.filter(x=>x!=="ا"&&!a.includes(x)),disp=c=>c;
+const K=(n,l,note)=>({n,l,note}),G=(n,note,k,ic)=>({n,note,k,ic});
+const ham=S("ف ح ث ه ش خ ص س ك ت"),shid=S("ء ج د ق ط ب ك ت"),mid=S("ل ن ع م ر"),ist=S("خ ص ض غ ط ق ظ"),itb=S("ص ض ط ظ"),izl=S("ف ر م ن ل ب"),hal=S("ء ه ع ح غ خ"),ikh=S("ت ث ج د ذ ز س ش ص ض ط ظ ف ق ك");
+const TREE=[
+G("মাখরাজ","মাখরাজ মানে হরফ উচ্চারণের স্থান। মূল স্থান ৫টি: জাওফ, হালক, জিহ্বা, ঠোঁট ও খাইশুম; এগুলোর অধীনে মোট ১৭টি স্থান।",[
+K("জাওফ",S("ا و ي"),"জাওফ মানে মুখ ও গলার ভেতরের খালি জায়গা। মাদ্দের তিন হরফ এখান থেকে বের হয়: যবরের বাম পাশে খালি আলিফ (قَالَ), পেশের পরে সাকিন ওয়াও (يَقُولُ) এবং যেরের পরে সাকিন ইয়া (قِيلَ)। শুধু এই অবস্থাতেই এরা জাওফের হরফ। অন্য সব অবস্থায় আলিফ, ওয়াও ও ইয়া নিজ নিজ মাখরাজ থেকে উচ্চারিত হয়।"),
+K("হালকের শুরু",S("ء ه"),"কণ্ঠনালির সবচেয়ে নিচের অংশ, বুকের দিকে। হামযা ও হা এখান থেকে বের হয়।"),
+K("হালকের মাঝ",S("ع ح"),"কণ্ঠনালির মাঝখান। আইন ও হা এখান থেকে বের হয়।"),
+K("হালকের শেষ",S("غ خ"),"কণ্ঠনালির উপরের অংশ, মুখের কাছাকাছি। গাইন ও খা এখান থেকে বের হয়।"),
+K("জিহ্বার গোড়া",S("ق ك"),"জিহ্বার একদম গোড়া ও তালুর অংশ থেকে। ক্বাফের স্থান আরও গভীরে, কাফ তার সামনে।"),
+K("জিহ্বার মাঝ",S("ج ش ي"),"জিহ্বার মাঝখান ও উপরের তালু থেকে জীম, শীন ও ইয়া বের হয়।"),
+K("জিহ্বার কিনারা",S("ض"),"জিহ্বার এক পাশের কিনারা ও উপরের মাড়ির গোড়া থেকে দোয়াদ বের হয়। এটি সবচেয়ে কঠিন হরফগুলোর একটি।"),
+K("জিহ্বার আগা",S("ل ن ر"),"জিহ্বার আগা সামনের উপরের দাঁতের মাড়ি ছুঁয়ে বের হয়। লাম, নূন ও রা একই এলাকায় কিন্তু আলাদা অংশে।"),
+K("আগা ও দাঁতের গোড়া",S("ط د ت"),"জিহ্বার আগা সামনের উপরের দাঁতের গোড়া ও মাড়িতে লাগিয়ে তোয়া, দাল ও তা বের হয়।"),
+K("আগা ও দাঁতের মাঝ",S("ص س ز"),"জিহ্বার আগা সামনের নিচের দাঁতের আগা ও পেটে লাগিয়ে ছোয়াদ, সীন ও যা বের হয়। এরা শিসের মতো আওয়াজের হরফ।"),
+K("আগা ও দাঁতের আগা",S("ظ ذ ث"),"জিহ্বার আগা উপরের সামনের দাঁতের আগায় ছুঁয়ে যোয়া, যাল ও ছা বের হয়।"),
+K("ঠোঁট ও দাঁত",S("ف"),"উপরের সামনের দুই দাঁতের আগা ও নিচের ঠোঁটের ভেতরের অংশ থেকে ফা বের হয়।"),
+K("দুই ঠোঁট",S("ب م و"),"দুই ঠোঁট থেকে বা, মীম ও ওয়াও বের হয়। ওয়াওয়ের সময় ঠোঁট গোল হয়, বা ও মীমে ঠোঁট পুরো বন্ধ হয়।"),
+K("খাইশুম",S("ن م"),"খাইশুম মানে নাকের ভেতরের ফাঁকা অংশ। গুন্নাহর আওয়াজ এখান থেকে আসে।")
+],"مخ"),
+G("সিফাত","সিফাত মানে হরফের গুণ বা বৈশিষ্ট্য, যা এক হরফকে অন্য হরফ থেকে আলাদা করে। দুই ভাগ: মুতাদদ্দাহ (বিপরীত জোড়া আছে) ও গায়রে মুতাদদ্দাহ (বিপরীত নেই)।",[
+G("মুতাদদ্দাহ","মুতাদদ্দাহ মানে বিপরীতধর্মী। এই সিফাতগুলোর প্রতিটির বিপরীত সিফাত আছে, মোট ৫ জোড়া। প্রতিটি হরফে প্রতি জোড়ার একটি পাওয়া যাবেই। এখানে হরফ ধরা হয় ২৮টি, কারণ আলিফের উপর হরকত এলে সেটিই হামযাহ (أ)।",[
+K("হামস",ham,"হামস মানে নরম বা ফিসফিস। এই হরফগুলো উচ্চারণে শ্বাস চলতে থাকে। ১০টি হরফ: فحثه شخص سكت।"),
+K("জাহর",not28(ham),"জাহর মানে জোরালো স্পষ্ট আওয়াজ। উচ্চারণে শ্বাস আটকে যায়। হামসের ১০ হরফ বাদে বাকি ১৮টি (আলিফ বাদে, হামযাহসহ)।"),
+K("শিদ্দাহ",shid,"শিদ্দাহ মানে কঠিনতা। উচ্চারণে আওয়াজ পুরোপুরি আটকে যায়। ৮টি হরফ: أجد قط بكت।"),
+K("তাওয়াসসুত",mid,"তাওয়াসসুত মানে মধ্যম অবস্থা। আওয়াজ পুরো আটকায়ও না, পুরো প্রবাহিতও হয় না। ৫টি হরফ: لن عمر।"),
+K("রখওয়াহ",not28(shid.concat(mid)),"রখওয়াহ মানে নরম ও প্রবাহিত। আওয়াজ হরফের স্থানে চলতে থাকে। শিদ্দাহ ও তাওয়াসসুতের ১৩ হরফ বাদে বাকি ১৫টি।"),
+K("ইস্তি’লা",ist,"ইস্তি’লা মানে উঁচু হওয়া। জিহ্বার গোড়া তালুর দিকে ওঠে, ফলে হরফ মোটা হয়। ৭টি হরফ: خص ضغط قظ।"),
+K("ইস্তিফাল",not28(ist),"ইস্তিফাল মানে নিচু হওয়া। জিহ্বা নিচে থাকে, হরফ চিকন হয়। ইস্তি’লার ৭ হরফ বাদে বাকি ২১টি।"),
+K("ইতবাক",itb,"ইতবাক মানে লেগে যাওয়া। জিহ্বার মাঝের অংশ তালুর সাথে লেগে যায়। ৪টি হরফ: ص ض ط ظ। এরা ইস্তি’লারও অংশ।"),
+K("ইনফিতাহ",not28(itb),"ইনফিতাহ মানে খোলা। জিহ্বা ও তালুর মাঝে ফাঁক থাকে। ইতবাকের ৪ হরফ বাদে বাকি ২৪টি।"),
+K("ইযলাক",izl,"ইযলাক মানে সহজে ও দ্রুত উচ্চারিত। হরফগুলো জিহ্বা বা ঠোঁটের কিনারা থেকে বের হয়। ৬টি হরফ: فر من لب।"),
+K("ইসমাত",not28(izl),"ইসমাত মানে ভারী বা স্থির। ইযলাকের ৬ হরফ বাদে বাকি ২২টি হরফ।")
+]),
+G("গায়রে মুতাদদ্দাহ","গায়রে মুতাদদ্দাহ মানে যার বিপরীত নেই। এই সিফাতগুলো শুধু নির্দিষ্ট কয়েকটি হরফে পাওয়া যায়।",[
+K("কলকলা",S("ق ط ب ج د"),"কলকলা মানে প্রতিধ্বনি বা কাঁপন। সাকিন অবস্থায় আওয়াজে হালকা প্রতিধ্বনি হয়। ৫টি হরফ: قطب جد।"),
+K("সফির",S("ص ز س"),"সফির মানে শিসের মতো আওয়াজ। ৩টি হরফ: ص ز س।"),
+K("লিন",S("و ي"),"লিন মানে নরম। ওয়াও ও ইয়া সাকিন হলে এবং আগে যবর থাকলে সহজে ও নরমভাবে পড়া হয়।"),
+K("তাফাশশি",S("ش"),"তাফাশশি মানে ছড়িয়ে পড়া। শীন উচ্চারণে আওয়াজ মুখের ভেতর ছড়িয়ে পড়ে।"),
+K("ইস্তিত্বলা",S("ض"),"ইস্তিত্বলা মানে লম্বা হওয়া। দোয়াদের আওয়াজ জিহ্বার কিনারা বরাবর লম্বা হয়।"),
+K("তাকরার",S("ر"),"তাকরার মানে বারবার কাঁপা। রা উচ্চারণে জিহ্বা কাঁপার প্রবণতা থাকে, কিন্তু ইচ্ছা করে কাঁপানো যাবে না।"),
+K("ইনহিরাফ",S("ل ر"),"ইনহিরাফ মানে ঝুঁকে পড়া। লাম ও রা উচ্চারণে জিহ্বা কিছুটা কাত হয়।")
+])
+],"صف"),
+G("হুরুফে মুকত্তআত","সূরার শুরুতে আসা বিচ্ছিন্ন হরফ। এগুলো শব্দ হিসেবে নয়, হরফের নামে পড়া হয়। পুনরাবৃত্তি বাদে ১৪টি হরফ।",[
+K("সব ১৪টি হরফ",S("ا ل م ص ر ك ه ي ع ط س ح ق ن"),"১৪টি ভিন্ন হরফ কুরআনের ২৯টি সূরার শুরুতে বিভিন্ন সংযোজনে এসেছে।"),
+K("এক হরফ",S("ص ق ن"),"যেমন সূরা ছোয়াদ (ص), ক্বাফ (ق) ও ক্বলম (ن)।"),
+K("দুই হরফ",S("ط ه ي س ح م"),"যেমন طه، يس، حم، طس।"),
+K("তিন–পাঁচ হরফ",S("ا ل م ر ك ه ي ع ص"),"যেমন الم، الر، كهيعص।")
+],"الم"),
+G("লাম তা'রিফ","আলিফ-লাম (ال) নির্দিষ্টতা বোঝায়। পরের হরফ অনুযায়ী লাম হয় পড়া হয় না, নয়তো স্পষ্ট পড়া হয়।",[
+K("হুরুফে শামসিয়া",S("ت ث د ذ ر ز س ش ص ض ط ظ ل ن"),"শামসিয়া মানে সূর্যের মতো। এই হরফ এলে লাম পড়া হয় না, পরের হরফ তাশদীদসহ পড়া হয়। ১৪টি হরফ।"),
+K("হুরুফে কমারিয়া",S("ا ب ج ح خ ع غ ف ق ك م و ه ي"),"কমারিয়া মানে চাঁদের মতো। এই হরফ এলে লাম স্পষ্ট উচ্চারিত হয়। ১৪টি হরফ (হামযাসহ)।")
+],"ال"),
+G("নূন সাকিন ও তানবীন","নূন সাকিন বা তানবীনের পর কোন হরফ আসে, তার উপর ভিত্তি করে ৪টি নিয়ম: ইজহার হালকি, ইদগাম, ইকলাব ও ইখফা।",[
+K("ইজহার হালকি",hal,"ইজহার মানে স্পষ্ট করা। হালকের ৬ হরফের আগে নূন গুন্নাহ ছাড়া স্পষ্ট পড়া হয়।"),
+G("ইদগাম","ইদগাম মানে মিলিয়ে ফেলা। নূন সাকিন বা তানবীনের পর ইয়ারমালুন (يرملون) এলে মিলিয়ে পড়া হয়। দুই ভাগ: ইদগাম বিগুন্নাহ ও ইদগাম বি গইর গুন্নাহ।",[
+G("ইদগাম বিগুন্নাহ","গুন্নাহসহ ইদগাম। ي ن م و (ينمو) এলে হয়। এর দুই ভাগ: কামিল ও নাকেস।",[
+K("কামিল",S("ن م"),"কামিল মানে পূর্ণ। নূন ও মীম এলে নূনের হরফ ও সিফাত পুরোপুরি পরের হরফে মিলে যায়, কেবল গুন্নাহ বজায় থাকে।"),
+K("নাকেস",S("و ي"),"নাকেস মানে অসম্পূর্ণ। ওয়াও ও ইয়া এলে নূনের হরফ মিলে যায়, কিন্তু নূনের সিফাত (গুন্নাহ) থেকে যায়, তাই ইদগাম পূর্ণ হয় না।")
+]),
+K("ইদগাম বি গইর গুন্নাহ",S("ل ر"),"গুন্নাহ ছাড়া ইদগাম। লাম ও রা এলে নূন পুরোপুরি মিলে যায় এবং কোনো গুন্নাহ থাকে না।")
+]),
+K("ইকলাব",S("ب"),"ইকলাব মানে পরিবর্তন করা। বা এলে নূনকে মীম বানিয়ে গুন্নাহসহ ইখফা করে পড়া হয়।"),
+G("ইখফা","ইখফা মানে গোপন করা। ১৫ হরফের আগে নূনকে গুন্নাহসহ হালকা করে পড়া হয়। পরের হরফ মোটা না পাতলা, সেই অনুযায়ী গুন্নাহও মোটা বা পাতলা হয়।",[
+K("মোটা গুন্নাহ",S("ص ض ط ظ ق"),"ইস্তি’লার এই ৫ হরফ (ص ض ط ظ ق) এলে ইখফার গুন্নাহ মোটা করে পড়া হয়।"),
+K("পাতলা গুন্নাহ",S("ت ث ج د ذ ز س ش ف ك"),"বাকি ১০ হরফ এলে ইখফার গুন্নাহ পাতলা করে পড়া হয়।"),
+K("সব ১৫ হরফ",ikh,"ইখফার মোট ১৫টি হরফ, মোটা ও পাতলা দুটি মিলিয়ে।")
+])
+],"نْ"),
+G("মীম সাকিন","মীম সাকিনের পর কোন হরফ আসে, তার উপর ভিত্তি করে ৩টি নিয়ম।",[
+K("ইখফায়ে শাফাউয়ী",S("ب"),"বা এলে মীম সাকিনকে গুন্নাহসহ গোপন করে পড়া হয়।"),
+K("ইদগামে শাফাউয়ী",S("م"),"মীমের পর মীম এলে দুটিকে মিলিয়ে গুন্নাহসহ পড়া হয়। একে ইদগামে মিসলাইনও বলা হয়।"),
+K("ইজহারে শাফাউয়ী",not(S("ب م")),"বাকি ২৭ হরফের আগে মীম স্পষ্ট পড়া হয়। ওয়াও ও ফা-এর আগে বেশি সতর্ক থাকতে হয়।")
+],"مْ"),
+G("মাদ ও লিন","মাদ মানে টেনে পড়া। মাদ্দের হরফ উপযুক্ত শর্তে লম্বা করে পড়া হয়।",[
+K("মাদ্দের হরফ",S("ا و ي"),"যবরের পরে খালি আলিফ (ـَا) যেমন قَالَ، পেশের পরে সাকিন ওয়াও (ـُو) যেমন يَقُولُ، যেরের পরে সাকিন ইয়া (ـِي) যেমন قِيلَ। এই তিনটি মাদ্দের হরফ।"),
+K("লিনের হরফ",S("و ي"),"আগে যবর থাকা ওয়াও সাকিন (ـَوْ) যেমন خَوْفٌ এবং ইয়া সাকিন (ـَيْ) যেমন بَيْتٌ। এখানে নরমভাবে পড়া হয়।")
+],"آ"),
+G("তাফখীম ও তারকীক","তাফখীম মানে মোটা করে এবং তারকীক মানে চিকন করে পড়া।",[
+K("সব সময় মোটা",ist,"ইস্তি’লার ৭ হরফ সব অবস্থায় মোটা করে পড়া হয়।"),
+K("সব সময় চিকন",not(ist.concat(S("ر ل ا"))),"এই হরফগুলো সব অবস্থায় চিকন করে পড়া হয়।"),
+K("অবস্থা বুঝে",S("ر ل ا"),"রা, লাম ও আলিফ আগের হরফ ও হরকত অনুযায়ী কখনো মোটা, কখনো চিকন হয়। আল্লাহ শব্দের লাম: আগে যবর বা পেশ থাকলে মোটা (যেমন رَسُولُ اللَّهِ، قَالَ اللَّهُ), আর যের থাকলে চিকন (যেমন بِسْمِ اللَّهِ)।")
+],"ر")
+];
+const traits=TREE[1].k.flatMap(g=>g.k);
+const bn=n=>n.toLocaleString('bn'), el=id=>document.getElementById(id);
+const field=el('field'), sky=el('sky'), veil=el('veil');
+let letters,stage,deck,cards=[],spawned,handled,score,mode,frame,lastTime,clock,startScore,drag=null,introAnimation;
+function shuffle(items){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+let mistakes=0,lesson=false;
+function extra(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=fn;el('extras').append(b)}
+function shareResult(){
+ const message='সিফাত এক্সপার্টে আমার স্কোর '+bn(score)+' পয়েন্ট! তুমিও খেলো।';
+ const url=location.origin+location.pathname;
+ trackGameEvent('share_click',{score:score});
+ if(navigator.share){navigator.share({title:'সিফাত এক্সপার্ট',text:message,url}).catch(e=>{if(e.name!=='AbortError')shareFallback(url)});return}
+ shareFallback(url)
+}
+function shareFallback(url){if(navigator.clipboard?.writeText)navigator.clipboard.writeText(url).then(()=>{el('info').textContent='গেমের লিংক কপি হয়েছে। বন্ধুকে পাঠিয়ে দিন: '+url}).catch(()=>prompt('গেমের লিংকটি কপি করে বন্ধুকে পাঠান:',url));else prompt('গেমের লিংকটি কপি করে বন্ধুকে পাঠান:',url)}
+function showScore(){el('finalPoints').textContent=bn(score);el('scorecard').hidden=false}
+function shareButton(){extra('বন্ধুদের সাথে শেয়ার করুন',shareResult);el('extras').lastElementChild.className='shareScore'}
+function returnHome(){
+ cancelAnimationFrame(frame);clearTimeout(nextTimer);if(introAnimation){introAnimation.onfinish=null;introAnimation.cancel()}sky.querySelector('.intro')?.remove();
+ field.replaceChildren();cards=[];drag=null;mode='menu';el('dock').textContent='';el('letterName').textContent='';el('toast').textContent='';el('pauseBtn').hidden=true;el('round').textContent='হরফ ১';el('points').textContent='পয়েন্ট ০';menu()
+}
+let nextTimer;
+el('home').onclick=returnHome;
+el('back').onclick=()=>{if(mode==='play'){pause();extra('শুরুর পর্দা',returnHome)}else if(mode==='pause'){resume()}else{returnHome()}};
+function menu(){el('navigation').hidden=true;modal('সিফাতের বৃষ্টি','সঠিক সিফাত পড়তে দিন, ভুল সিফাত পাশে ছুড়ে দিন।','দুই চালের মহড়া',()=>start(true));extra('খেলা শুরু করুন',()=>start(false))}
+function modal(title,body,label,callback){el("scorecard").hidden=true;el("extras").replaceChildren();el("bloom").replaceChildren();veil.hidden=false;el('heading').textContent=title;el('info').textContent=body;el('action').textContent=label;el('action').onclick=callback;el('action').focus()}
+const playable=L.filter(c=>c!=='ا');
+const historyKey='sifat-expert-recent-letters';
+let recent=[];
+try{
+ const saved=JSON.parse(localStorage.getItem(historyKey));
+ if(Array.isArray(saved))recent=[...new Set(saved.filter(c=>playable.includes(c)))];
+}catch{}
+function start(training=false){
+ lesson=training===true;mistakes=0;
+ trackGameEvent('game_start',{game_mode:lesson?'practice':'main'});
+ const unseen=shuffle(playable.filter(c=>!recent.includes(c)));
+ const older=recent.slice(0,-1);
+ letters=lesson?['ق']:[...unseen,...shuffle(older),...recent.slice(-1)];
+ stage=0;score=0;begin()
+}
+function begin(){el("navigation").hidden=false;
+ cancelAnimationFrame(frame);field.replaceChildren();cards=[];drag=null;mode='intro';startScore=score;
+ const c=letters[stage],yes=traits.filter(t=>t.l.includes(c)),no=shuffle(traits.filter(t=>!t.l.includes(c))).slice(0,Math.min(7,5+stage));
+ if(!lesson){
+ recent=recent.filter(letter=>letter!==c).concat(c);
+ try{localStorage.setItem(historyKey,JSON.stringify(recent))}catch{}
+ }
+ deck=lesson?[yes[0],no[0]]:shuffle((stage+1)%5===0?traits:[...yes,...no]);spawned=handled=clock=0;veil.hidden=true;el('pauseBtn').hidden=true;
+ el('round').textContent='হরফ '+bn(stage+1)+' / '+bn(letters.length)+(!lesson&&(stage+1)%5===0?' · এক্সপার্ট চ্যালেঞ্জ':'');updateScore();
+ el('dock').textContent=c;el('dock').style.visibility='hidden';el('letterName').textContent=N[L.indexOf(c)];
+ el('toast').textContent=(stage?'পরের হরফ · ':'প্রথম হরফ · ')+N[L.indexOf(c)];
+ const big=document.createElement('div');big.className='intro';big.textContent=c;sky.append(big);
+ const box=sky.getBoundingClientRect(),end=el('dock').getBoundingClientRect();
+ const dest='translate('+ (end.left+end.width/2-box.left-box.width/2)+'px,'+(end.top+end.height/2-box.top)+'px) translate(-50%,-50%) scale(.49)';
+ const center='translate(-50%,'+(box.height*.42)+'px)';
+ introAnimation=big.animate([{transform:center},{offset:.48,transform:center},{transform:dest}],{duration:matchMedia('(prefers-reduced-motion:reduce)').matches?180:1550,easing:'ease-in-out',fill:'both'});
+ introAnimation.onfinish=()=>{big.remove();el('dock').style.visibility='visible';el('toast').textContent='';el('pauseBtn').hidden=false;resume();if(document.hidden)pause()}
+}
+function updateScore(){el('points').textContent='পয়েন্ট '+bn(score)+' · '+bn(handled)+' / '+bn(deck.length)+(lesson?'':' · '+'♥'.repeat(Math.max(0,3-mistakes))+'♡'.repeat(Math.min(3,mistakes)))}
+function resume(){veil.hidden=true;mode='play';lastTime=performance.now();frame=requestAnimationFrame(tick)}
+function pause(){if(mode!=='play')return;mode='pause';drag=null;cancelAnimationFrame(frame);modal('একটু বিরতি','প্রস্তুত হলে এখান থেকেই আবার খেলুন।','চালিয়ে যাই',resume)}
+el('pauseBtn').onclick=pause;document.addEventListener('visibilitychange',()=>{if(document.hidden)pause()});
+function spawn(){
+ const trait=deck[spawned],node=document.createElement('button'),card={trait,node,lane:spawned%3,y:0,dx:0};spawned++;
+ if(lesson)el('toast').textContent=handled?'এবার ভুল সিফাতটি পাশে ছুড়ে দিন।':'এই সিফাতটি সঠিক। নিচে পড়তে দিন।';node.className='card';node.textContent=trait.n;field.append(node);cards.push(card);
+ node.onpointerdown=e=>{if(mode!=='play'||drag)return;drag={card,x:e.clientX,id:e.pointerId};node.setPointerCapture(e.pointerId)};
+ node.onpointermove=e=>{if(drag?.card===card&&drag.id===e.pointerId)card.dx=e.clientX-drag.x};
+ node.onpointerup=e=>{if(drag?.card!==card||drag.id!==e.pointerId)return;const delta=e.clientX-drag.x;drag=null;if(Math.abs(delta)>=Math.min(48,field.clientWidth*.11))resolve(card,true,delta);card.dx=0};
+ node.onpointercancel=()=>{drag=null;card.dx=0};node.onclick=e=>{if(e.detail===0)resolve(card,true)};
+}
+function tick(now){
+ if(mode!=='play')return;const dt=Math.min(80,now-lastTime);lastTime=now;clock+=dt;
+ if(spawned<deck.length&&(!spawned||clock>=2050)&&cards.length<(lesson?1:3)){spawn();clock=0}
+ for(const card of [...cards]){if(!(lesson&&handled===1&&card.y>=0.46))card.y+=dt/(7200-Math.min(stage,10)*100);const x=field.clientWidth*((card.lane+.5)/3)-card.node.offsetWidth/2;
+ card.node.style.transform='translate('+(x+card.dx)+'px,'+(card.y*(field.clientHeight-card.node.offsetHeight))+'px)';
+ if(card.y>=1)resolve(card,false);if(mode!=='play')return}
+ frame=requestAnimationFrame(tick)
+}
+function resolve(card,discard,delta=1){
+ if(mode!=='play'||!cards.includes(card))return;
+ const c=letters[stage],belongs=card.trait.l.includes(c);if(drag?.card===card)drag=null;
+ if(discard===belongs){mode='over';cancelAnimationFrame(frame);el('pauseBtn').hidden=true;
+ const reason=belongs?card.trait.n+' এই হরফের সিফাত। এটিকে নিচে পড়তে দিন।':card.trait.n+' এই হরফের সিফাত নয়। এটিকে পাশে সরাতে হয়।';
+ if(!lesson)mistakes++;updateScore();if(lesson||mistakes<=3){modal('আবার চেষ্টা করুন',reason+' '+card.trait.note,'চালিয়ে যাই',()=>{card.y=0;card.dx=0;el('pauseBtn').hidden=false;resume()})}
+ else{trackGameEvent('game_over',{letter:c,round_number:stage+1,score:score,mistakes:mistakes});modal('গেম ওভার',c+' · '+reason+' '+card.trait.note,'আবার প্লে',start);showScore();extra('শুরুর পর্দা',returnHome);shareButton()}return}
+ cards=cards.filter(t=>t!==card);if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+ const tray=document.querySelector(delta<0?'.tray.left':'.tray.right');
+ if(discard){const r=card.node.getBoundingClientRect(),t=tray.getBoundingClientRect();const fly=card.node.cloneNode(true);fly.style.cssText='position:fixed;pointer-events:none;z-index:4;left:'+r.left+'px;top:'+r.top+'px;width:'+r.width+'px';document.body.append(fly);fly.animate([{transform:'scale(1)'},{transform:'translate('+(t.left-r.left)+'px,'+(t.top-r.top)+'px) scale(.1)',opacity:0}],350);setTimeout(()=>fly.remove(),350);tray.animate([{transform:'rotate(-12deg)'},{transform:'rotate(12deg)'},{transform:'none'}],{duration:350,delay:230})}
+ else el('dock').animate([{textShadow:'0 0 3px gold'},{textShadow:'0 0 24px gold'},{textShadow:'none'}],500)
+ }
+ card.node.remove();score++;handled++;updateScore();
+ if(handled===deck.length){mode='clear';el('pauseBtn').hidden=true;if(lesson){modal('মহড়া সম্পন্ন','এবার নিজের মতো খেলুন।','খেলা শুরু করুন',()=>start(false));return}
+ trackGameEvent('round_complete',{letter:c,round_number:stage+1,score:score});const last=stage+1===letters.length;if(last)trackGameEvent('game_complete',{score:score,rounds_completed:stage+1});
+ modal(last?'✓ অভিনন্দন!':'✓ হরফ সম্পন্ন','আপনার স্কোর '+bn(score)+' পয়েন্ট',last?'আবার খেলি':'পরের হরফ →',last?menu:()=>{stage++;begin()});
+ if(last)showScore();const bloom=el('bloom'),glyph=document.createElement('b');glyph.textContent=c;bloom.append(glyph);
+ const saved=traits.filter(t=>t.l.includes(c));saved.forEach((t,i)=>{const angle=i*2*Math.PI/saved.length-Math.PI/2,p=document.createElement('span');p.textContent=t.n;p.style.left=(50+34*Math.cos(angle))+'%';p.style.top=(50+37*Math.sin(angle))+'%';bloom.append(p)});if(last)shareButton()
+ }
+}
+menu()
+</script></html>
