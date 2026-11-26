@@ -4,178 +4,155 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex">
-  <title>ফুলঝুড়ি গেমের ফাইল ডাউনলোড</title>
+  <title>ফুলঝুড়ি গেম ডাউনলোড</title>
   <style>
     * { box-sizing: border-box }
     body {
-      margin: 0; padding: 24px; min-height: 100svh;
-      display: grid; place-items: center;
-      background: #091528; color: #fff5df;
+      margin: 0;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: #091528;
+      color: #fff5df;
       font: 17px/1.6 system-ui, sans-serif;
     }
     main {
-      width: min(100%, 440px); padding: 24px;
-      background: #14243b; border: 1px solid #997b50;
+      width: min(100%, 430px);
+      padding: 24px;
+      background: #14243b;
+      border: 1px solid #a78a56;
       border-radius: 18px;
     }
-    h1 { margin: 0; font-size: 24px }
+    h1 { margin: 0; font-size: 25px }
+    p { margin: 10px 0 18px }
     a {
-      display: block; margin-top: 12px; padding: 12px;
-      border-radius: 10px; text-align: center;
-      background: #f4d79a; color: #192436;
-      text-decoration: none; font-weight: bold;
+      display: block;
+      margin-top: 12px;
+      padding: 13px;
+      border-radius: 10px;
+      background: #f4d79a;
+      color: #17263a;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
     }
-    [hidden] { display: none }
   </style>
 </head>
 <body>
   <main>
-    <h1>ফুলঝুড়ি গেমের ফাইল</h1>
+    <h1>সিফাতের ফুলঝুড়ি</h1>
     <p id="status" role="status">গেমের ফাইল তৈরি হচ্ছে…</p>
-    <div id="downloads" hidden></div>
+    <div id="files"></div>
   </main>
 
   <script>
-    const statusText = document.querySelector('#status');
-    const downloads = document.querySelector('#downloads');
-    const folder = new URL('./', location.href);
-    const titles = {
-      bn: 'Tajweed Game | সিফাতের ফুলঝুড়ি',
-      en: 'Tajweed Game | Sifat Flower Basket'
+    const names = {
+      bn: 'সিফাতের ফুলঝুড়ি',
+      en: 'Sifat Flower Basket'
     };
 
-    function makePage(source, lang) {
-      const doc = new DOMParser().parseFromString(source, 'text/html');
-      const stage = doc.querySelector('#stage');
-      const paired = doc.querySelector('#a')?.closest('aside');
-      const unpaired = doc.querySelector('#b')?.closest('aside');
+    // এই অংশটি তৈরি করা গেমের ভিতরে চলবে।
+    function applyGameNames(names) {
+      function refresh() {
+        const lang = document.documentElement.lang === 'en' ? 'en' : 'bn';
+        const screenName = names[lang];
+        document.title = 'Tajweed Game | ' + screenName;
 
-      if (!stage || !paired || !unpaired || !doc.querySelector('#language')) {
-        throw new Error('ফুলঝুড়ির গেমটি চেনা যায়নি। update.html ফাইলটি fuljhuri ফোল্ডারে আছে কি না দেখুন।');
+        for (const heading of document.querySelectorAll('#stage h1, #exitPage h1')) {
+          if (heading.textContent !== screenName) {
+            heading.textContent = screenName;
+          }
+        }
       }
 
-      // মুতাদ্দদাহ বামে, গইরে মুতাদ্দদাহ ডানে।
-      stage.before(paired);
-      stage.after(unpaired);
+      refresh();
+
+      new MutationObserver(refresh).observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['lang']
+      });
+
+      const switcher = document.getElementById('language');
+      if (switcher) {
+        switcher.addEventListener('click', () => queueMicrotask(refresh));
+      }
+    }
+
+    async function prepareFile(filename, lang) {
+      const response = await fetch('./' + filename, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(filename + ' পাওয়া যায়নি।');
+      }
+
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+
+      if (!doc.querySelector('#stage h1') || !doc.querySelector('#language')) {
+        throw new Error(filename + ' ফাইলে ফুলঝুড়ি গেমটি পাওয়া যায়নি।');
+      }
+
+      const screenName = names[lang];
+      const searchTitle = 'Tajweed Game | ' + screenName;
 
       doc.documentElement.lang = lang;
-      doc.title = titles[lang];
+      doc.title = searchTitle;
 
-      const description = lang === 'en'
-        ? 'Learn the traits of Arabic letters in a free Tajweed game. Choose the correct sifat and fill your flower basket.'
-        : 'আরবি হরফের সঠিক সিফাত বেছে ফুলের ঝুড়িতে রাখুন। বাংলা ও ইংরেজিতে তাজবীদ অনুশীলন করুন।';
-
-      function meta(attr, key, value) {
-        let tag = doc.head.querySelector(`meta[${attr}="${key}"]`);
-        if (!tag) {
-          tag = doc.createElement('meta');
-          tag.setAttribute(attr, key);
-          doc.head.append(tag);
+      for (const heading of doc.querySelectorAll('#stage h1, #exitPage h1')) {
+        heading.textContent = screenName;
+        if (heading.hasAttribute('data-bn')) {
+          heading.setAttribute('data-bn', names.bn);
         }
-        tag.content = value;
       }
 
-      meta('name', 'description', description);
-      meta('property', 'og:title', titles[lang]);
-      meta('property', 'og:description', description);
-
-      doc.head.querySelectorAll(
-        'link[rel="canonical"], link[rel="alternate"][hreflang]'
-      ).forEach(link => link.remove());
-
-      function addLink(rel, file, language) {
-        const link = doc.createElement('link');
-        link.rel = rel;
-        link.href = new URL(file, folder).href;
-        if (language) link.hreflang = language;
-        doc.head.append(link);
+      let shareTitle = doc.querySelector('meta[property="og:title"]');
+      if (!shareTitle) {
+        shareTitle = doc.createElement('meta');
+        shareTitle.setAttribute('property', 'og:title');
+        doc.head.append(shareTitle);
       }
+      shareTitle.setAttribute('content', searchTitle);
 
-      addLink('canonical', lang === 'en' ? 'en.html' : './');
-      addLink('alternate', './', 'bn');
-      addLink('alternate', 'en.html', 'en');
-      addLink('alternate', './', 'x-default');
+      // বারবার আপডেট করলেও একই কোড একবারই থাকবে।
+      doc.getElementById('fuljhuri-screen-names')?.remove();
 
-      doc.querySelector('#fuljhuri-spacing')?.remove();
-      const style = doc.createElement('style');
-      style.id = 'fuljhuri-spacing';
-      style.textContent = `
-        main aside:first-of-type h2 {
-          margin: 0 0 4px;
-          padding: 0 0 0 28px;
-        }
-        #a {
-          padding: 0;
-          align-content: stretch;
-          align-items: stretch;
-          row-gap: 4px;
-        }
-        #a .tile { align-self: stretch }
-        main aside:last-of-type h2 { padding-right: 28px }
-      `;
-      doc.head.append(style);
+      const script = doc.createElement('script');
+      script.id = 'fuljhuri-screen-names';
+      script.textContent =
+        '(' + applyGameNames.toString() + ')(' + JSON.stringify(names) + ');';
+      doc.body.append(script);
 
-      // পুরোনো গেমের নিজস্ব ভাষা বদলের বোতাম ব্যবহার করে
-      // অক্ষর, সিফাত, নোট এবং খেলার নির্দেশনা একসঙ্গে বদলায়।
-      doc.querySelector('#fuljhuri-entry')?.remove();
-      const init = doc.createElement('script');
-      init.id = 'fuljhuri-entry';
-      init.textContent = `
-        (() => {
-          const wanted = ${JSON.stringify(lang)};
-          const names = ${JSON.stringify(titles)};
-          const button = document.getElementById('language');
+      const output = '<!doctype html>\n' + doc.documentElement.outerHTML;
+      const blob = new Blob([output], { type: 'text/html;charset=utf-8' });
 
-          function syncTitle() {
-            const active = document.documentElement.lang === 'en' ? 'en' : 'bn';
-            document.title = names[active];
-            for (const heading of document.querySelectorAll('#stage h1, #exitPage h1')) {
-              if (heading.textContent !== names[active]) heading.textContent = names[active];
-            }
-          }
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.textContent = lang === 'bn'
+        ? '⬇ বাংলা গেম ডাউনলোড — index.html'
+        : '⬇ English game download — en.html';
 
-          if (button && document.documentElement.lang !== wanted) button.click();
-          syncTitle();
-          button?.addEventListener('click', () => {
-            syncTitle();
-            const file = document.documentElement.lang === 'en' ? 'en.html' : './';
-            if (location.protocol.startsWith('http')) history.replaceState(null, '', file);
-          });
-        })();
-      `;
-      doc.body.append(init);
-      return '<!doctype html>\n' + doc.documentElement.outerHTML;
+      return link;
     }
 
-    async function prepare() {
+    async function prepareDownloads() {
+      const status = document.getElementById('status');
+      const files = document.getElementById('files');
+
       try {
-        const response = await fetch(new URL('index.html', folder), {
-          cache: 'no-store'
-        });
-        if (!response.ok) throw new Error('গেমের index.html পাওয়া যায়নি।');
+        const links = await Promise.all([
+          prepareFile('index.html', 'bn'),
+          prepareFile('en.html', 'en')
+        ]);
 
-        const source = await response.text();
-        for (const [lang, file, label] of [
-          ['bn', 'index.html', '⬇ বাংলা ফাইল ডাউনলোড'],
-          ['en', 'en.html', '⬇ ইংরেজি ফাইল ডাউনলোড']
-        ]) {
-          const html = makePage(source, lang);
-          const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
-          const link = document.createElement('a');
-          link.href = URL.createObjectURL(blob);
-          link.download = file;
-          link.textContent = label;
-          downloads.append(link);
-        }
-
-        statusText.textContent = 'ফাইল তৈরি হয়েছে। নিচের দুটি বোতামে আলাদা করে চাপুন।';
-        downloads.hidden = false;
+        files.replaceChildren(...links);
+        status.textContent = 'দুটি ফাইল তৈরি হয়েছে। নিচের বোতাম দুটি চাপুন।';
       } catch (error) {
-        statusText.textContent = 'ফাইল তৈরি করা যায়নি। ' + error.message;
+        status.textContent = 'ফাইল তৈরি করা যায়নি। ' + error.message;
       }
     }
 
-    prepare();
+    prepareDownloads();
   </script>
 </body>
 </html>
