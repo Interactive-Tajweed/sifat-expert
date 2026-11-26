@@ -208,4 +208,28 @@ $('language').onclick=()=>{english=!english;try{localStorage.sifatLanguage=engli
             if (location.protocol.startsWith('http')) history.replaceState(null, '', file);
           });
         })();
-      </script></body></html>
+      </script><script id="fuljhuri-screen-names">(function installScreenTitle(names) {
+      const headings = document.querySelectorAll('#stage h1, #exitPage h1');
+
+      function applyTitle() {
+        const lang = document.documentElement.lang === 'en' ? 'en' : 'bn';
+        const shortName = names[lang];
+        const fullTitle = 'Tajweed Game | ' + shortName;
+
+        if (document.title !== fullTitle) document.title = fullTitle;
+        for (const heading of headings) {
+          if (heading.textContent !== shortName) heading.textContent = shortName;
+        }
+      }
+
+      const observer = new MutationObserver(applyTitle);
+      for (const heading of headings) {
+        observer.observe(heading, {
+          subtree: true, childList: true, characterData: true
+        });
+      }
+      observer.observe(document.documentElement, {
+        attributes: true, attributeFilter: ['lang']
+      });
+      applyTitle();
+    })({"bn":"সিফাতের ফুলঝুড়ি","en":"Sifat Flower Basket"});</script></body></html>
