@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>ফুলঝুড়ির শিরোনাম ঠিক করুন</title>
+  <style>
+    * { box-sizing: border-box }
+    body {
+      margin: 0; padding: 20px; min-height: 100svh;
+      display: grid; place-items: center;
+      background: #091528; color: #fff5df;
+      font: 17px/1.6 system-ui, sans-serif;
+    }
+    main {
+      width: min(100%, 460px); padding: 22px;
+      border: 1px solid #a78a56; border-radius: 16px;
+      background: #14243b;
+    }
+    h1 { font-size: 23px; margin: 0 }
+    p { margin: 10px 0 }
+    a {
+      display: block; margin: 8px 0 18px; padding: 12px;
+      background: #f4d79a; color: #17263a;
+      text-align: center; text-decoration: none;
+      font-weight: bold; border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>ফুলঝুড়ির শিরোনাম</h1>
+    <p id="status" role="status">প্রকাশিত গেম থেকে ফাইল তৈরি হচ্ছে…</p>
+    <div id="files"></div>
+  </main>
+
+  <script>
+    const names = {
+      bn: 'সিফাতের ফুলঝুড়ি',
+      en: 'Sifat Flower Basket'
+    };
+
+    // গেমের ভাষা বা পুরোনো শিরোনাম বদলালে পর্দার নামটি মিলিয়ে নেয়।
+    function installScreenTitle(names) {
+      const headings = document.querySelectorAll('#stage h1, #exitPage h1');
+
+      function applyTitle() {
+        const lang = document.documentElement.lang === 'en' ? 'en' : 'bn';
+        const shortName = names[lang];
+        const fullTitle = 'Tajweed Game | ' + shortName;
+
+        if (document.title !== fullTitle) document.title = fullTitle;
+        for (const heading of headings) {
+          if (heading.textContent !== shortName) heading.textContent = shortName;
+        }
+      }
+
+      const observer = new MutationObserver(applyTitle);
+      for (const heading of headings) {
+        observer.observe(heading, {
+          subtree: true, childList: true, characterData: true
+        });
+      }
+      observer.observe(document.documentElement, {
+        attributes: true, attributeFilter: ['lang']
+      });
+      applyTitle();
+    }
+
+    async function makeFile(file, lang) {
+      const response = await fetch('./' + file, { cache: 'no-store' });
+      if (!response.ok) throw new Error(file + ' পাওয়া যায়নি।');
+
+      const doc = new DOMParser().parseFromString(
+        await response.text(), 'text/html'
+      );
+      if (!doc.querySelector('#stage h1') || !doc.querySelector('#language')) {
+        throw new Error(file + ' ফাইলে ফুলঝুড়ির গেমটি পাওয়া যায়নি।');
+      }
+
+      doc.documentElement.lang = lang;
+      doc.title = 'Tajweed Game | ' + names[lang];
+
+      for (const heading of doc.querySelectorAll('#stage h1, #exitPage h1')) {
+        heading.textContent = names[lang];
+        if (heading.hasAttribute('data-bn')) {
+          heading.setAttribute('data-bn', names.bn);
+        }
+      }
+
+      // পুরোনো পর্দার-নাম সংশোধনটি সরিয়ে একটিমাত্র সংস্করণ রাখে।
+      doc.getElementById('fuljhuri-screen-names')?.remove();
+      const script = doc.createElement('script');
+      script.id = 'fuljhuri-screen-names';
+      script.textContent =
+        '(' + installScreenTitle.toString() + ')(' + JSON.stringify(names) + ');';
+      doc.body.append(script);
+
+      const blob = new Blob(
+        ['<!doctype html>\n', doc.documentElement.outerHTML],
+        { type: 'text/html;charset=utf-8' }
+      );
+
+      const section = document.createElement('section');
+      const label = document.createElement('p');
+      label.textContent = 'পর্দার নাম — ' + names[lang];
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = file;
+      link.textContent = '⬇ ' + file + ' ডাউনলোড করুন';
+      section.append(label, link);
+      return section;
+    }
+
+    async function start() {
+      const status = document.getElementById('status');
+      try {
+        const files = await Promise.all([
+          makeFile('index.html', 'bn'),
+          makeFile('en.html', 'en')
+        ]);
+        document.getElementById('files').replaceChildren(...files);
+        status.textContent = 'দুটি সংশোধিত ফাইল তৈরি হয়েছে।';
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    }
+
+    start();
+  </script>
+</body>
+</html>
